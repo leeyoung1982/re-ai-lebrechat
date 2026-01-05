@@ -40,14 +40,20 @@ export default function Footer({ className }: { className?: string }) {
     </a>
   );
 
-  const mainContentParts = (
+  const envFooter = process.env.NEXT_PUBLIC_CUSTOM_FOOTER;
+
+  const footerText =
     typeof config?.customFooter === 'string'
       ? config.customFooter
+      : typeof envFooter === 'string'
+      ? envFooter
       : '[LibreChat ' +
         Constants.VERSION +
         '](https://librechat.ai) - ' +
-        localize('com_ui_latest_footer')
-  ).split('|');
+        localize('com_ui_latest_footer');
+
+  const mainContentParts = footerText.split('|');
+
 
   useEffect(() => {
     if (config?.analyticsGtmId != null && typeof window.google_tag_manager === 'undefined') {
