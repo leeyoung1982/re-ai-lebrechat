@@ -16,7 +16,7 @@ import type {
 } from 'librechat-data-provider';
 import type { Endpoint } from '~/common';
 import { useGetEndpointsQuery } from '~/data-provider';
-import { mapEndpoints, getIconKey } from '~/utils';
+import { mapEndpoints, getIconKey, resolveEndpointIconURL } from '~/utils';
 import { useHasAccess } from '~/hooks';
 import { icons } from './Icons';
 
@@ -92,16 +92,31 @@ export const useEndpoints = ({
           ep !== EModelEndpoint.agents &&
           (modelsQuery.data?.[ep]?.length ?? 0) > 0);
 
+      // NOTE:
+      // Endpoint icons for the model selector menu are injected here.
+      // Do NOT rely on librechat.yaml iconURL/modelIcons or MinimalIcon heuristics.
+      // See ICON_GUIDE.md for details.
+      // Get endpoint config to resolve icon URL
+      const endpointConfig = endpointsConfig?.[ep];
+      const resolvedIconURL =
+        endpointIconURL ??
+        resolveEndpointIconURL({
+          name: endpointConfig?.name ?? ep,
+          models: endpointConfig?.models,
+          baseURL: endpointConfig?.baseURL,
+        });
+
       // Base result object with formatted default icon
       const result: Endpoint = {
         value: ep,
         label: alternateName[ep] || ep,
         hasModels,
+        iconURL: resolvedIconURL ?? undefined,
         icon: Icon
           ? React.createElement(Icon, {
               size: 20,
               className: 'text-text-primary shrink-0 icon-md',
-              iconURL: endpointIconURL,
+              iconURL: resolvedIconURL ?? endpointIconURL,
               endpoint: ep,
             })
           : null,
