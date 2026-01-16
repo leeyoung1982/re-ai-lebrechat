@@ -148,6 +148,7 @@ export function createAgentCategoryMethods(mongoose: typeof import('mongoose')) 
 
   /**
    * Ensure default categories exist and update them if they don't have localization keys
+   * Also deactivates any categories not in the default list (old categories)
    * @returns Promise<boolean> - true if categories were created/updated, false if no changes
    */
   async function ensureDefaultCategories(): Promise<boolean> {
@@ -155,54 +156,56 @@ export function createAgentCategoryMethods(mongoose: typeof import('mongoose')) 
 
     const defaultCategories = [
       {
-        value: 'general',
-        label: 'com_agents_category_general',
-        description: 'com_agents_category_general_description',
+        value: 'business',
+        label: 'com_agents_category_business',
+        description: 'com_agents_category_business_description',
         order: 0,
+      },
+      {
+        value: 'strategy',
+        label: 'com_agents_category_strategy',
+        description: 'com_agents_category_strategy_description',
+        order: 1,
+      },
+      {
+        value: 'creative',
+        label: 'com_agents_category_creative',
+        description: 'com_agents_category_creative_description',
+        order: 2,
+      },
+      {
+        value: 'media_resources',
+        label: 'com_agents_category_media_resources',
+        description: 'com_agents_category_media_resources_description',
+        order: 3,
+      },
+      {
+        value: 'procurement',
+        label: 'com_agents_category_procurement',
+        description: 'com_agents_category_procurement_description',
+        order: 4,
       },
       {
         value: 'hr',
         label: 'com_agents_category_hr',
         description: 'com_agents_category_hr_description',
-        order: 1,
-      },
-      {
-        value: 'rd',
-        label: 'com_agents_category_rd',
-        description: 'com_agents_category_rd_description',
-        order: 2,
-      },
-      {
-        value: 'finance',
-        label: 'com_agents_category_finance',
-        description: 'com_agents_category_finance_description',
-        order: 3,
-      },
-      {
-        value: 'it',
-        label: 'com_agents_category_it',
-        description: 'com_agents_category_it_description',
-        order: 4,
-      },
-      {
-        value: 'sales',
-        label: 'com_agents_category_sales',
-        description: 'com_agents_category_sales_description',
         order: 5,
       },
       {
-        value: 'aftersales',
-        label: 'com_agents_category_aftersales',
-        description: 'com_agents_category_aftersales_description',
+        value: 'general',
+        label: 'com_agents_category_general',
+        description: 'com_agents_category_general_description',
         order: 6,
       },
     ];
 
+    const defaultValues = new Set(defaultCategories.map((c) => c.value));
     const existingCategories = await getAllCategories();
     const existingCategoryMap = new Map(existingCategories.map((cat) => [cat.value, cat]));
 
     const updates = [];
     let created = 0;
+    let deactivated = 0;
 
     for (const defaultCategory of defaultCategories) {
       const existingCategory = existingCategoryMap.get(defaultCategory.value);
@@ -210,13 +213,22 @@ export function createAgentCategoryMethods(mongoose: typeof import('mongoose')) 
       if (existingCategory) {
         const isNotCustom = !existingCategory.custom;
         const needsLocalization = !existingCategory.label.startsWith('com_');
+        const needsActivation = !existingCategory.isActive;
 
-        if (isNotCustom && needsLocalization) {
-          updates.push({
-            value: defaultCategory.value,
-            label: defaultCategory.label,
-            description: defaultCategory.description,
-          });
+        if (isNotCustom) {
+          if (needsLocalization) {
+            updates.push({
+              value: defaultCategory.value,
+              label: defaultCategory.label,
+              description: defaultCategory.description,
+            });
+          }
+          if (needsActivation) {
+            updates.push({
+              value: defaultCategory.value,
+              isActive: true,
+            });
+          }
         }
       } else {
         await createCategory({
@@ -228,6 +240,19 @@ export function createAgentCategoryMethods(mongoose: typeof import('mongoose')) 
       }
     }
 
+    // Deactivate old categories that are not in the default list
+    const oldCategories = existingCategories.filter((cat) => !defaultValues.has(cat.value) && !cat.custom);
+    if (oldCategories.length > 0) {
+      const deactivateOps = oldCategories.map((cat) => ({
+        updateOne: {
+          filter: { value: cat.value },
+          update: { $set: { isActive: false } },
+        },
+      }));
+      await AgentCategory.bulkWrite(deactivateOps, { ordered: false });
+      deactivated = oldCategories.length;
+    }
+
     if (updates.length > 0) {
       const bulkOps = updates.map((update) => ({
         updateOne: {
@@ -236,6 +261,7 @@ export function createAgentCategoryMethods(mongoose: typeof import('mongoose')) 
             $set: {
               label: update.label,
               description: update.description,
+              isActive: update.isActive ?? true,
             },
           },
         },
@@ -244,7 +270,7 @@ export function createAgentCategoryMethods(mongoose: typeof import('mongoose')) 
       await AgentCategory.bulkWrite(bulkOps, { ordered: false });
     }
 
-    return updates.length > 0 || created > 0;
+    return updates.length > 0 || created > 0 || deactivated > 0;
   }
 
   return {

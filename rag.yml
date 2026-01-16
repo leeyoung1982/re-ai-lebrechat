@@ -13,15 +13,19 @@ services:
       - "5433:5432"
 
   rag_api:
-    image: ghcr.io/danny-avila/librechat-rag-api-dev:latest
+    image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
     environment:
       - DB_HOST=vectordb
       - DB_PORT=5432
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
+      - COLLECTION_NAME=${COLLECTION_NAME:-kb_company}
+      - LOG_LEVEL=debug
+      - DEBUG_PGVECTOR_QUERIES=true
+      - UVICORN_LOG_LEVEL=debug
     ports:
-      - "${RAG_PORT}:${RAG_PORT}"
+      - "8000:8000"
     depends_on:
       - vectordb
     env_file:

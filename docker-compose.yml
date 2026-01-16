@@ -8,6 +8,7 @@ services:
       - "${PORT}:3100"
     depends_on:
       - mongodb
+      - meilisearch
       - rag_api
     image: ghcr.io/danny-avila/librechat-dev:latest
     restart: always
@@ -15,14 +16,11 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+    env_file:
+      - .env
+
     environment:
       - HOST=0.0.0.0
-      - PORT=3100
-
-      # === HTTPS 世界线（必须三者一致）===
-      - APP_URL=https://nerve-dod-roulette-skins.trycloudflare.com
-      - AUTH_URL=https://nerve-dod-roulette-skins.trycloudflare.com 
-      - COOKIE_DOMAIN=nerve-dod-roulette-skins.trycloudflare.com 
       - TRUST_PROXY=1
 
       # === Backend services ===
@@ -32,9 +30,6 @@ services:
       - RAG_API_URL=http://rag_api:${RAG_PORT:-8000}
 
     volumes:
-      - type: bind
-        source: ./.env
-        target: /app/.env
       - ./images:/app/client/public/images
       - ./uploads:/app/uploads
       - ./logs:/app/logs
@@ -43,7 +38,6 @@ services:
     container_name: chat-mongodb
     image: mongo
     restart: always
-    user: "${UID}:${GID}"
     volumes:
       - ./data-node:/data/db
     command: mongod --noauth
@@ -53,7 +47,6 @@ services:
     restart: always
     user: "${UID}:${GID}"
     environment:
-      - MEILI_HOST=http://meilisearch:7700
       - MEILI_NO_ANALYTICS=true
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
     volumes:
@@ -73,6 +66,10 @@ services:
     image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
     environment:
       - DB_HOST=vectordb
+      - DB_PORT=5432
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
       - RAG_PORT=${RAG_PORT:-8000}
     restart: always
     depends_on:

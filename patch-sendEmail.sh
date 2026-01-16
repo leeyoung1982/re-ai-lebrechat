@@ -1,3 +1,7 @@
+#!/bin/bash
+# Patch sendEmail.js inside the LibreChat container
+
+cat > /tmp/sendEmail-patched.js << 'ENDOFFILE'
 const path = require('path');
 const axios = require('axios');
 const FormData = require('form-data');
@@ -115,41 +119,48 @@ const sendEmail = async ({ email, subject, payload, template, throwError = true 
 
     // Default to SMTP
     logger.debug('[sendEmail] Using SMTP provider');
+    
+    // Configure SMTP transporter with proper TLS/SSL settings
+    const port = Number(process.env.EMAIL_PORT) || 25;
+    const enc = (process.env.EMAIL_ENCRYPTION || '').toLowerCase();
+    const useImplicitTLS = port === 465 || enc === 'ssl';
+    const useStartTLS = port === 587 || enc === 'tls' || enc === 'starttls';
+
     const transporterOptions = {
-      // Use STARTTLS by default instead of obligatory TLS
-      secure: process.env.EMAIL_ENCRYPTION === 'tls',
-      // If explicit STARTTLS is set, require it when connecting
-      requireTls: process.env.EMAIL_ENCRYPTION === 'starttls',
-      tls: {
-        // Whether to accept unsigned certificates
-        rejectUnauthorized: !isEnabled(process.env.EMAIL_ALLOW_SELFSIGNED),
-      },
+      host: process.env.EMAIL_HOST,
+      port,
+      secure: useImplicitTLS,
       auth: {
         user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD,
       },
+      tls: {
+        rejectUnauthorized: !isEnabled(process.env.EMAIL_ALLOW_SELFSIGNED),
+      },
     };
 
+    // Only set requireTLS for STARTTLS (port 587), not for implicit TLS (port 465)
+    if (useStartTLS && !useImplicitTLS) {
+      transporterOptions.requireTls = true;
+    }
+
     if (process.env.EMAIL_ENCRYPTION_HOSTNAME) {
-      // Check the certificate against this name explicitly
       transporterOptions.tls.servername = process.env.EMAIL_ENCRYPTION_HOSTNAME;
     }
 
-    // Mailer service definition has precedence
-    if (process.env.EMAIL_SERVICE) {
-      transporterOptions.service = process.env.EMAIL_SERVICE;
-    } else {
-      transporterOptions.host = process.env.EMAIL_HOST;
-      transporterOptions.port = process.env.EMAIL_PORT ?? 25;
-    }
+    // Log SMTP configuration (without sensitive data)
+    logger.info('[sendEmail] SMTP transporter options', {
+      host: transporterOptions.host,
+      port: transporterOptions.port,
+      secure: transporterOptions.secure,
+      requireTls: transporterOptions.requireTls,
+      encryption: process.env.EMAIL_ENCRYPTION,
+    });
 
     const mailOptions = {
-      // Header address should contain name-addr
       from: fromAddress,
       to: toAddress,
       envelope: {
-        // Envelope from should contain addr-spec
-        // Mistake in the Nodemailer documentation?
         from: fromEmail,
         to: email,
       },
@@ -168,3 +179,9 @@ const sendEmail = async ({ email, subject, payload, template, throwError = true 
 };
 
 module.exports = sendEmail;
+ENDOFFILE
+
+# Copy the patched file into the container
+docker cp /tmp/sendEmail-patched.js LibreChat:/app/api/server/utils/sendEmail.js
+
+echo "✅ Patched /app/api/server/utils/sendEmail.js inside container"
