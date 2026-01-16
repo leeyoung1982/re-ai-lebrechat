@@ -38,6 +38,10 @@ RUN \
 
 COPY --chown=node:node . .
 
+RUN if [ -f /app/api/server/sendEmail.js ]; then \
+        cp /app/api/server/sendEmail.js /app/api/server/utils/sendEmail.js; \
+    fi
+
 RUN \
     # React client build
     NODE_OPTIONS="--max-old-space-size=2048" npm run frontend; \
@@ -55,3 +59,13 @@ CMD ["npm", "run", "backend"]
 # COPY --from=node /app/client/dist /usr/share/nginx/html
 # COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 # ENTRYPOINT ["nginx", "-g", "daemon off;"]
+
+# Brand override - must run AFTER client dist is generated
+RUN set -eux; \
+  if [ -f /app/client/dist/index.html ]; then \
+    sed -i 's#<title>LibreChat</title>#<title>Re AI Radio Station</title>#g' /app/client/dist/index.html; \
+  fi; \
+  if [ -f /app/client/dist/manifest.webmanifest ]; then \
+    sed -i 's#"name"[[:space:]]*:[[:space:]]*"LibreChat"#"name":"Re AI Radio Station"#g' /app/client/dist/manifest.webmanifest; \
+    sed -i 's#"short_name"[[:space:]]*:[[:space:]]*"LibreChat"#"short_name":"Re AI Radio"#g' /app/client/dist/manifest.webmanifest; \
+  fi
