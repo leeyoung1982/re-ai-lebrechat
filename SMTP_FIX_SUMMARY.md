@@ -129,8 +129,8 @@ EMAIL_HOST=smtp.exmail.qq.com
 EMAIL_PORT=465
 EMAIL_ENCRYPTION=ssl
 EMAIL_USERNAME=re-ai-radio@reload.com.cn
-EMAIL_PASSWORD=Youngai2452
-EMAIL_FROM_NAME=re- AI Radio
+EMAIL_PASSWORD=<REDACTED>
+EMAIL_FROM_NAME=RELOAD AI Radio
 EMAIL_FROM=re-ai-radio@reload.com.cn
 ```
 
