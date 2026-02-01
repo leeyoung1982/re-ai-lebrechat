@@ -159,5 +159,8 @@
       "admin/",
       "packages/"
     ]
+  },
+  "dependencies": {
+    "lottie-web": "^5.13.0"
   }
 }

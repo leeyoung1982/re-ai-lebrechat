@@ -1,11 +1,16 @@
+import React from 'react';
 import { ThemeSelector } from '@librechat/client';
-import { TStartupConfig } from 'librechat-data-provider';
+import type { TStartupConfig } from 'librechat-data-provider';
 import { ErrorMessage } from '~/components/Auth/ErrorMessage';
 import { TranslationKeys, useLocalize } from '~/hooks';
 import SocialLoginRender from './SocialLoginRender';
-import { BlinkAnimation } from './BlinkAnimation';
 import { Banner } from '../Banners';
 import Footer from './Footer';
+import LoginBackground from './LoginBackground';
+import { LOGIN_TITLE, REGISTER_TITLE } from './brandCopy';
+
+// TODO(ai-radio): Add full-screen Auth Splash (first-visit) via <AuthSplashGate />.
+// Replaces old BlinkAnimation-based logo blink.
 
 function AuthLayout({
   children,
@@ -27,6 +32,7 @@ function AuthLayout({
   const localize = useLocalize();
 
   const hasStartupConfigError = startupConfigError !== null && startupConfigError !== undefined;
+
   const DisplayError = () => {
     if (hasStartupConfigError) {
       return (
@@ -34,7 +40,9 @@ function AuthLayout({
           <ErrorMessage>{localize('com_auth_error_login_server')}</ErrorMessage>
         </div>
       );
-    } else if (error === 'com_auth_error_invalid_reset_token') {
+    }
+
+    if (error === 'com_auth_error_invalid_reset_token') {
       return (
         <div className="mx-auto sm:max-w-sm">
           <ErrorMessage>
@@ -46,51 +54,63 @@ function AuthLayout({
           </ErrorMessage>
         </div>
       );
-    } else if (error != null && error) {
+    }
+
+    if (error != null && error) {
       return (
         <div className="mx-auto sm:max-w-sm">
           <ErrorMessage>{localize(error)}</ErrorMessage>
         </div>
       );
     }
+
     return null;
   };
 
   return (
     <div className="relative flex min-h-screen flex-col bg-white dark:bg-gray-900">
-      <Banner />
-      <BlinkAnimation active={isFetching}>
-        <div className="mt-6 h-10 w-full bg-cover">
-          <img
-            src="assets/logo.svg"
-            className="h-full w-full object-contain"
-            alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
-          />
-        </div>
-      </BlinkAnimation>
-      <DisplayError />
-      <div className="absolute bottom-0 left-0 md:m-4">
-        <ThemeSelector />
-      </div>
+      {/* Background layer (fixed, behind everything) */}
+      <LoginBackground />
 
-      <main className="flex flex-grow items-center justify-center">
-        <div className="w-authPageWidth overflow-hidden bg-white px-6 py-4 dark:bg-gray-900 sm:max-w-md sm:rounded-lg">
-          {!hasStartupConfigError && !isFetching && header && (
-            <h1
-              className="mb-4 text-center text-3xl font-semibold text-black dark:text-white"
-              style={{ userSelect: 'none' }}
-            >
-              {header}
-            </h1>
-          )}
-          {children}
-          {!pathname.includes('2fa') &&
-            (pathname.includes('login') || pathname.includes('register')) && (
-              <SocialLoginRender startupConfig={startupConfig} />
-            )}
+      {/* Foreground content layer */}
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <Banner />
+
+        <DisplayError />
+
+        <div className="absolute bottom-0 left-0 md:m-4">
+          <ThemeSelector />
         </div>
-      </main>
-      <Footer startupConfig={startupConfig} />
+
+        <main className="flex flex-grow items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-authPageWidth overflow-hidden bg-white/85 px-6 py-4 backdrop-blur-sm dark:bg-gray-900/70 sm:max-w-md sm:rounded-lg">
+              {!hasStartupConfigError && !isFetching && header && (
+                <h1
+                  className="mb-4 text-center text-2xl font-medium text-black dark:text-white"
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {pathname.includes('register') ? REGISTER_TITLE : LOGIN_TITLE}
+                </h1>
+              )}
+
+              {children}
+
+              {!pathname.includes('2fa') &&
+                (pathname.includes('login') || pathname.includes('register')) && (
+                  <SocialLoginRender startupConfig={startupConfig} />
+                )}
+            </div>
+
+            {/* Auth page footer (under the card) */}
+            {startupConfig?.customFooter && (
+              <div className="mt-6 text-center text-xs text-gray-700 dark:text-gray-200">
+                {startupConfig.customFooter}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -8,7 +8,6 @@ import { PermissionTypes, Permissions, QueryKeys } from 'librechat-data-provider
 import type t from 'librechat-data-provider';
 import type { ContextType } from '~/common';
 import { useDocumentTitle, useHasAccess, useLocalize, TranslationKeys } from '~/hooks';
-import { useGetEndpointsQuery, useGetAgentCategoriesQuery } from '~/data-provider';
 import MarketplaceAdminSettings from './MarketplaceAdminSettings';
 import { SidePanelProvider, useChatContext } from '~/Providers';
 import { SidePanelGroup } from '~/components/SidePanel';
@@ -18,6 +17,8 @@ import CategoryTabs from './CategoryTabs';
 import SearchBar from './SearchBar';
 import AgentGrid from './AgentGrid';
 import store from '~/store';
+import { useGetEndpointsQuery, useGetAgentCategoriesQuery, useGetStartupConfig } from '~/data-provider';
+
 
 interface AgentMarketplaceProps {
   className?: string;
@@ -32,6 +33,7 @@ interface AgentMarketplaceProps {
  */
 const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ className = '' }) => {
   const localize = useLocalize();
+  const { data: startupConfig } = useGetStartupConfig();
   const navigate = useNavigate();
   const { category } = useParams();
   const queryClient = useQueryClient();
@@ -57,7 +59,10 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ className = '' }) =
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Set page title
-  useDocumentTitle(`${localize('com_agents_marketplace')} | LibreChat`);
+  useDocumentTitle(
+    `${localize('com_agents_marketplace')} | ${startupConfig?.appTitle || 'AI Radio'}`
+  );
+
 
   // Ensure right sidebar is always visible in marketplace
   useEffect(() => {
