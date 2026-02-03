@@ -178,3 +178,19 @@ docs/*.pdf
 
 # Local backups
 *.backup
+
+# local trash / quarantine
+_trash_*/
+
+# secrets / local env
+.env
+.env.*
+librechat.yaml.backup
+*_build*.log
+
+# rollback leftovers
+_rollback/
+
+# accidental files like "-H", "--eval" created by bad pastes
+-*
+--*
