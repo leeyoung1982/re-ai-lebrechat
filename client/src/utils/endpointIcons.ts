@@ -45,9 +45,15 @@ export function resolveEndpointIconURL(endpoint: {
   }
 
   // Pattern matching in priority order
-  // re-AI-Radio / propose
-  if (searchString.includes('re-ai-radio') || searchString.includes('propose')) {
-    return '/assets/re-ai-radio.svg';
+  // AI Radio LLM 选荐 / re-AI-Radio / propose
+  if (
+    searchString.includes('ai radio llm') ||
+    searchString.includes('ai radio') ||
+    searchString.includes('re-ai-radio') ||
+    searchString.includes('propose') ||
+    searchFields.some((field) => field.includes('AI Radio LLM'))
+  ) {
+    return '/assets/brand/new-icon.svg';
   }
 
   // OpenAI/ChatGPT/gpt-
