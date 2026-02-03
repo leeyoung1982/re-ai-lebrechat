@@ -118,10 +118,16 @@ export default function MinimalIcon(props: IconProps) {
       icon: <CustomMinimalIcon />,
       name: 'Custom',
     },
-    [EModelEndpoint.assistants]: { icon: <Sparkles className="icon-sm" />, name: 'Assistant' },
-    [EModelEndpoint.azureAssistants]: { icon: <Sparkles className="icon-sm" />, name: 'Assistant' },
+    [EModelEndpoint.assistants]: { icon: <Sparkles className="h-4 w-4" />, name: 'Assistant' },
+    [EModelEndpoint.azureAssistants]: { icon: <Sparkles className="h-4 w-4" />, name: 'Assistant' },
     [EModelEndpoint.agents]: {
-      icon: <Feather className="icon-sm" aria-hidden="true" />,
+      icon: (
+        <img
+          src="/assets/agent-marketplace-icon.svg"
+          alt="My Agents"
+          className="h-4 w-4"
+        />
+      ),
       name: props.modelLabel ?? alternateName[EModelEndpoint.agents],
     },
     [EModelEndpoint.bedrock]: {
@@ -129,7 +135,7 @@ export default function MinimalIcon(props: IconProps) {
       name: props.modelLabel ?? alternateName[EModelEndpoint.bedrock],
     },
     default: {
-      icon: <UnknownIcon iconURL={iconURL} endpoint={endpoint} className="icon-sm" context="nav" />,
+      icon: <UnknownIcon iconURL={iconURL} endpoint={endpoint} className="h-4 w-4" context="nav" />,
       name: endpoint,
     },
   };
