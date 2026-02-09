@@ -6,11 +6,12 @@ import { TranslationKeys, useLocalize } from '~/hooks';
 import SocialLoginRender from './SocialLoginRender';
 import { Banner } from '../Banners';
 import Footer from './Footer';
-import LoginBackground from './LoginBackground';
-import { LOGIN_TITLE, REGISTER_TITLE } from './brandCopy';
 
-// TODO(ai-radio): Add full-screen Auth Splash (first-visit) via <AuthSplashGate />.
-// Replaces old BlinkAnimation-based logo blink.
+// 使用你已放置的原始 Eye 源码（命名导出）
+import { Eye } from '~/components/Eye';
+
+const YELLOW = '#f6d233';
+const FRAME = '#F2E6C7';
 
 function AuthLayout({
   children,
@@ -36,7 +37,7 @@ function AuthLayout({
   const DisplayError = () => {
     if (hasStartupConfigError) {
       return (
-        <div className="mx-auto sm:max-w-sm">
+        <div className="mx-auto w-full max-w-[460px] px-6">
           <ErrorMessage>{localize('com_auth_error_login_server')}</ErrorMessage>
         </div>
       );
@@ -44,7 +45,7 @@ function AuthLayout({
 
     if (error === 'com_auth_error_invalid_reset_token') {
       return (
-        <div className="mx-auto sm:max-w-sm">
+        <div className="mx-auto w-full max-w-[460px] px-6">
           <ErrorMessage>
             {localize('com_auth_error_invalid_reset_token')}{' '}
             <a className="font-semibold text-[#d4258e] hover:underline" href="/forgot-password">
@@ -58,7 +59,7 @@ function AuthLayout({
 
     if (error != null && error) {
       return (
-        <div className="mx-auto sm:max-w-sm">
+        <div className="mx-auto w-full max-w-[460px] px-6">
           <ErrorMessage>{localize(error)}</ErrorMessage>
         </div>
       );
@@ -67,49 +68,74 @@ function AuthLayout({
     return null;
   };
 
+  const showSocial =
+    !pathname.includes('2fa') && (pathname.includes('login') || pathname.includes('register'));
+
   return (
-    <div className="relative flex min-h-screen flex-col bg-white dark:bg-gray-900">
-      {/* Background layer (fixed, behind everything) */}
-      <LoginBackground />
+    <div className="relative flex min-h-screen flex-col" style={{ backgroundColor: YELLOW }}>
+      <Banner />
 
-      {/* Foreground content layer */}
-      <div className="relative z-10 flex min-h-screen flex-col">
-        <Banner />
-
+      <div className="mt-4">
         <DisplayError />
+      </div>
 
-        <div className="absolute bottom-0 left-0 md:m-4">
-          <ThemeSelector />
-        </div>
+      <div className="absolute bottom-0 left-0 md:m-4">
+        <ThemeSelector />
+      </div>
 
-        <main className="flex flex-grow items-center justify-center">
-          <div className="flex flex-col items-center">
-            <div className="w-authPageWidth overflow-hidden bg-white/85 px-6 py-4 backdrop-blur-sm dark:bg-gray-900/70 sm:max-w-md sm:rounded-lg">
-              {!hasStartupConfigError && !isFetching && header && (
-                <h1
-                  className="mb-4 text-center text-2xl font-medium text-black dark:text-white"
-                  style={{ whiteSpace: 'nowrap' }}
-                >
-                  {pathname.includes('register') ? REGISTER_TITLE : LOGIN_TITLE}
-                </h1>
-              )}
-
-              {children}
-
-              {!pathname.includes('2fa') &&
-                (pathname.includes('login') || pathname.includes('register')) && (
-                  <SocialLoginRender startupConfig={startupConfig} />
-                )}
-            </div>
-
-            {/* Auth page footer (under the card) */}
-            {startupConfig?.customFooter && (
-              <div className="mt-6 text-center text-xs text-gray-700 dark:text-gray-200">
-                {startupConfig.customFooter}
+      <main className="flex flex-1 items-center justify-center px-6 py-10">
+        <div className="w-full max-w-[460px]">
+          {/* ✅ 更高级的“边框”实现：压窄 20% 且天然压住溢出内容 */}
+          <div
+            className="w-full"
+            style={{
+              border: `14px solid ${FRAME}`,
+              backgroundColor: YELLOW,
+            }}
+          >
+            {/* ✅ 裁切容器：手机端眼白超出时会被边框压住 */}
+            <div className="w-full" style={{ backgroundColor: YELLOW, overflow: 'hidden' }}>
+              {/* ✅ Eye 区 1:1 */}
+              <div
+                className="w-full flex items-center justify-center"
+                style={{
+                  backgroundColor: YELLOW,
+                  aspectRatio: '1 / 1',
+                  padding: 12,
+                }}
+              >
+                <div className="flex items-center justify-center gap-4">
+                  <Eye />
+                  <Eye />
+                </div>
               </div>
-            )}
+
+              {/* ✅ 白色表单区更紧凑 */}
+              <div className="bg-white px-8 pt-7 pb-7">
+                {children}
+
+                {!hasStartupConfigError && !isFetching && showSocial && (
+                  <div className="mt-4">
+                    <SocialLoginRender startupConfig={startupConfig} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </main>
+        </div>
+      </main>
+
+      {/* ✅ footer：规则 3（customFooter 优先，否则站点 Footer） */}
+      <div className="pb-6">
+        {startupConfig?.customFooter ? (
+          <div className="mt-2 text-center text-xs text-black/80 tracking-wide">
+            {startupConfig.customFooter}
+          </div>
+        ) : (
+          <div className="mt-2">
+            <Footer startupConfig={startupConfig} />
+          </div>
+        )}
       </div>
     </div>
   );

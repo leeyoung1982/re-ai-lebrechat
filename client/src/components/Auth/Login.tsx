@@ -90,7 +90,16 @@ function Login() {
 
   return (
     <>
+      {/* Title */}
+      <h1
+        className="mb-4 text-center text-[28px] font-bold text-black"
+        style={{ whiteSpace: 'nowrap' }}
+      >
+        Welcome to AI Radio™
+      </h1>
+
       {error != null && <ErrorMessage>{localize(getLoginError(error))}</ErrorMessage>}
+
       {startupConfig?.emailLoginEnabled === true && (
         <LoginForm
           onSubmit={login}
@@ -99,6 +108,7 @@ function Login() {
           setError={setError}
         />
       )}
+
       {startupConfig?.registrationEnabled === true && (
         <p className="my-4 text-center text-sm font-light text-gray-700 dark:text-white">
           {' '}

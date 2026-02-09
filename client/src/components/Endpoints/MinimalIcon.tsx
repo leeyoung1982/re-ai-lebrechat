@@ -44,8 +44,15 @@ const getCustomEndpointIconURL = (props: any) => {
     console.log('MinimalIcon raw:', raw, 'props:', props);
   }
 
-  if (n.includes('re-ai-radio') || n.includes('re ai radio') || n.includes('propose'))
-    return '/assets/re-ai-radio.svg';
+  if (
+    n.includes('ai radio llm') ||
+    n.includes('ai radio') ||
+    n.includes('re-ai-radio') ||
+    n.includes('re ai radio') ||
+    n.includes('propose') ||
+    raw.includes('AI Radio LLM')
+  )
+    return '/assets/brand/new-icon.svg';
 
   if (n.includes('openai') || n.includes('chatgpt')) return '/assets/openai.svg';
   if (n.includes('gemini') || n.includes('google')) return '/assets/google.svg';
