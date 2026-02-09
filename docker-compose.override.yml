@@ -1,5 +1,6 @@
 services:
   api:
+    image: re-ai-radio/librechat:release-20260209
     build:
       context: .
       dockerfile: Dockerfile

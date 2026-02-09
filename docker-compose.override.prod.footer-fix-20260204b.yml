@@ -1,3 +1,0 @@
-services:
-  api:
-    image: re-ai-radio/librechat:footer-fix-20260204b

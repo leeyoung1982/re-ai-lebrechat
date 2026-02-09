@@ -1,3 +1,0 @@
-services:
-  api:
-    image: re-ai-radio/librechat:auth-footer-20260204e
