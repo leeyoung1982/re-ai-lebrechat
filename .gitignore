@@ -197,3 +197,6 @@ _rollback/
 
 # compose backups
 docker-compose*.bak.*
+
+# Archived temporary docker configs
+docker-compose.override.prod.*.yml
