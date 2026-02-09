@@ -9,6 +9,7 @@ import type { TRegisterUser, TError } from 'librechat-data-provider';
 import type { TLoginLayoutContext } from '~/common';
 import { useLocalize, TranslationKeys } from '~/hooks';
 import { ErrorMessage } from './ErrorMessage';
+import { TURN_ON_CTA } from './brandCopy';
 
 const Registration: React.FC = () => {
   const navigate = useNavigate();
@@ -202,11 +203,11 @@ const Registration: React.FC = () => {
                   (requireCaptcha && !turnstileToken)
                 }
                 type="submit"
-                aria-label="Submit registration"
+                aria-label="TURN_ON_CTA"
                 variant="submit"
                 className="h-12 w-full rounded-2xl"
               >
-                {isSubmitting ? <Spinner /> : localize('com_auth_continue')}
+                {isSubmitting ? <Spinner /> : TURN_ON_CTA}
               </Button>
             </div>
           </form>
@@ -218,7 +219,7 @@ const Registration: React.FC = () => {
               aria-label="Login"
               className="inline-flex p-1 text-sm font-medium text-[#d4258e] transition-colors hover:text-[#d4258e] dark:text-[#d4258e] dark:hover:text-[#d4258e]"
             >
-              {localize('com_auth_login')}
+              {localize('com_auth_sign_in')}
             </a>
           </p>
         </>

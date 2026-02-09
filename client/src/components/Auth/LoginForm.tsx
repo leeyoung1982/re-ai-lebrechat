@@ -6,6 +6,8 @@ import type { TLoginUser, TStartupConfig } from 'librechat-data-provider';
 import type { TAuthContext } from '~/common';
 import { useResendVerificationEmail, useGetStartupConfig } from '~/data-provider';
 import { useLocalize } from '~/hooks';
+import { TURN_ON_CTA } from './brandCopy';
+
 
 type TLoginFormProps = {
   onSubmit: (data: TLoginUser) => void;
@@ -170,14 +172,14 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
 
         <div className="mt-6">
           <Button
-            aria-label={localize('com_auth_continue')}
+            aria-label={TURN_ON_CTA}
             data-testid="login-button"
             type="submit"
             disabled={(requireCaptcha && !turnstileToken) || isSubmitting}
             variant="submit"
             className="h-12 w-full rounded-2xl"
           >
-            {isSubmitting ? <Spinner /> : localize('com_auth_continue')}
+            {isSubmitting ? <Spinner /> : TURN_ON_CTA}
           </Button>
         </div>
       </form>

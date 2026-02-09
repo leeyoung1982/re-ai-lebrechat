@@ -51,7 +51,14 @@ const AgentAvatar = ({ className = '', avatar = '', agentName, size }: AgentIcon
     );
   }
 
-  return <Feather className={cn(agentName === '' ? 'icon-2xl' : '', className)} size={size} />;
+  return (
+    <img
+      src="/assets/agent-marketplace-icon.svg"
+      alt={agentName || 'Agent'}
+      className={cn(agentName === '' ? 'icon-2xl' : '', className)}
+      style={{ width: size ?? '1em', height: size ?? '1em' }}
+    />
+  );
 };
 
 const Bedrock = ({ className = '' }: IconMapProps) => {
