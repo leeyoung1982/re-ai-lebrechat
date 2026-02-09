@@ -1,0 +1,83 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TRUST_PROXY=1
+      - APP_TITLE=AI Radio
+
+      # Footer
+      - CUSTOM_FOOTER=AI Radio by RELOAD © 2026
+
+    volumes:
+      # 登录页 logo
+      - ./brand-assets/generated/logo.svg:/app/client/public/assets/logo.svg:ro
+      - ./brand-assets/generated/logo.svg:/app/client/dist/assets/logo.svg:ro
+
+      # favicon (public & dist)
+      - ./brand-assets/generated/favicon.ico:/app/client/public/assets/favicon.ico:ro
+      - ./brand-assets/generated/favicon.ico:/app/client/dist/assets/favicon.ico:ro
+      - ./brand-assets/generated/favicon-16x16.png:/app/client/public/assets/favicon-16x16.png:ro
+      - ./brand-assets/generated/favicon-16x16.png:/app/client/dist/assets/favicon-16x16.png:ro
+      - ./brand-assets/generated/favicon-32x32.png:/app/client/public/assets/favicon-32x32.png:ro
+      - ./brand-assets/generated/favicon-32x32.png:/app/client/dist/assets/favicon-32x32.png:ro
+      
+      # PWA & Mobile Icons
+      - ./brand-assets/generated/apple-touch-icon-180x180.png:/app/client/public/assets/apple-touch-icon-180x180.png:ro
+      - ./brand-assets/generated/apple-touch-icon-180x180.png:/app/client/dist/assets/apple-touch-icon-180x180.png:ro
+      - ./brand-assets/generated/icon-192x192.png:/app/client/public/assets/icon-192x192.png:ro
+      - ./brand-assets/generated/icon-192x192.png:/app/client/dist/assets/icon-192x192.png:ro
+      - ./brand-assets/generated/maskable-icon.png:/app/client/public/assets/maskable-icon.png:ro
+      - ./brand-assets/generated/maskable-icon.png:/app/client/dist/assets/maskable-icon.png:ro
+
+      # ai-radio icon（模型选择菜单图标 - Cache Busting）
+      - ./brand-assets/generated/ai-radio-v1.svg:/app/client/public/assets/ai-radio-v1.svg:ro
+      - ./brand-assets/generated/ai-radio-v1.svg:/app/client/dist/assets/ai-radio-v1.svg:ro
+
+      # Configuration file
+      - ./librechat.yaml:/app/librechat.yaml:ro
+
+      # Email templates
+      - ./emails:/app/api/server/emails:ro
+
+  # Vector database for RAG (from rag.yml)
+  vectordb:
+    image: pgvector/pgvector:0.8.0-pg15-trixie
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - pgdata2:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  # RAG API service (from rag.yml)
+  rag_api:
+    image: ghcr.io/danny-avila/librechat-rag-api-dev-lite@sha256:293ebcfdc7118a8e7b67e569ccc278bd07e999e9718ce3c8bfa5bdbcafa40e88
+    environment:
+      - DB_HOST=vectordb
+      - DB_PORT=5432
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - COLLECTION_NAME=kb_company
+      - LOG_LEVEL=debug
+      - DEBUG_PGVECTOR_QUERIES=true
+      - UVICORN_LOG_LEVEL=debug
+      - RAG_API_KEY=${RAG_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - RAG_AUTH_REQUIRED=false
+      - REQUIRE_AUTH=false
+    volumes:
+      - ./docs:/app/docs
+    ports:
+    - "8000:8000"
+    depends_on:
+      - vectordb
+    env_file:
+      - .env
+
+volumes:
+  pgdata2:
