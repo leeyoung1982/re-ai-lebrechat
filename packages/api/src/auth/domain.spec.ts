@@ -103,6 +103,71 @@ describe('isEmailDomainAllowed', () => {
       expect(result).toBe(true);
     });
   });
+
+  describe('allowedEmails parameter', () => {
+    it('should return true if email is in allowedEmails list', () => {
+      const email = 'special@gmail.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], ['special@gmail.com']);
+      expect(result).toBe(true);
+    });
+
+    it('should match allowedEmails case-insensitively', () => {
+      const email = 'Special@GMAIL.COM';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], ['special@gmail.com']);
+      expect(result).toBe(true);
+    });
+
+    it('should return true for allowedEmails even when domain is not in allowedDomains', () => {
+      const email = 'vip@unknown-domain.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], ['vip@unknown-domain.com']);
+      expect(result).toBe(true);
+    });
+
+    it('should still check allowedDomains if email not in allowedEmails', () => {
+      const email = 'user@domain1.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], ['other@gmail.com']);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if email not in allowedEmails and domain not in allowedDomains', () => {
+      const email = 'user@blocked.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], ['other@gmail.com']);
+      expect(result).toBe(false);
+    });
+
+    it('should work when allowedEmails is empty array', () => {
+      const email = 'user@domain1.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], []);
+      expect(result).toBe(true);
+    });
+
+    it('should work when allowedEmails is null', () => {
+      const email = 'user@domain1.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], null);
+      expect(result).toBe(true);
+    });
+
+    it('should work when allowedEmails is undefined', () => {
+      const email = 'user@domain1.com';
+      const result = isEmailDomainAllowed(email, ['domain1.com'], undefined);
+      expect(result).toBe(true);
+    });
+
+    it('should handle null entries in allowedEmails gracefully', () => {
+      const email = 'special@gmail.com';
+      // @ts-expect-error Testing invalid input
+      const result = isEmailDomainAllowed(email, ['domain1.com'], [null, 'special@gmail.com', undefined]);
+      expect(result).toBe(true);
+    });
+
+    it('should prioritize allowedEmails over allowedDomains check', () => {
+      // When email matches allowedEmails, it should return true immediately
+      // without checking if domain is allowed
+      const email = 'special@blocked-domain.com';
+      const result = isEmailDomainAllowed(email, ['allowed-domain.com'], ['special@blocked-domain.com']);
+      expect(result).toBe(true);
+    });
+  });
 });
 
 describe('isActionDomainAllowed', () => {

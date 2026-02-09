@@ -15,7 +15,7 @@ const socialLogin =
 
       const appConfig = await getAppConfig();
 
-      if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains)) {
+      if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
         logger.error(
           `[${provider}Login] Authentication blocked - email domain not allowed [Email: ${email}]`,
         );

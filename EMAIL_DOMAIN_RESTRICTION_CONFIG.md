@@ -3,6 +3,8 @@
 ## 概述
 LibreChat 现已配置为仅允许 `@reload.com.cn` 域名的邮箱进行用户注册。其他域名的邮箱在注册时将被拒绝,返回 HTTP 403 错误。
 
+**新增功能**: 现在支持通过 `allowedEmails` 配置项允许特定的完整邮箱地址注册，即使其域名不在白名单中。
+
 ## 配置位置
 
 ### 1. 主配置文件: `librechat.yaml`
@@ -10,6 +12,9 @@ LibreChat 现已配置为仅允许 `@reload.com.cn` 域名的邮箱进行用户�
 registration:
   allowedDomains:
     - "reload.com.cn"
+  allowedEmails:             # 新增：允许注册的特定邮箱地址
+    - "special@gmail.com"    # 绕过域名限制
+    - "vip@example.com"
 ```
 
 ### 2. 环境变量说明: `.env`
@@ -195,10 +200,11 @@ docker-compose logs api | grep "Custom config file loaded"
 
 ## 更新历史
 
+- **2026-02-08**: 新增 `allowedEmails` 配置 - 支持精确匹配特定邮箱地址
 - **2026-01-06**: 初始配置 - 限制为仅允许 @reload.com.cn 域名注册
 
 ---
 
-**配置完成日期**: 2026-01-06  
+**配置完成日期**: 2026-02-08  
 **配置人员**: AI Assistant  
-**版本**: 1.0
+**版本**: 1.1

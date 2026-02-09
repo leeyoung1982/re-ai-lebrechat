@@ -364,7 +364,7 @@ async function setupOpenId() {
           const appConfig = await getAppConfig();
           /** Azure AD sometimes doesn't return email, use preferred_username as fallback */
           const email = userinfo.email || userinfo.preferred_username || userinfo.upn;
-          if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains)) {
+          if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
             logger.error(
               `[OpenID Strategy] Authentication blocked - email domain not allowed [Email: ${email}]`,
             );

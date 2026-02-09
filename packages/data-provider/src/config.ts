@@ -867,6 +867,7 @@ export const configSchema = z.object({
     .object({
       socialLogins: z.array(z.string()).optional(),
       allowedDomains: z.array(z.string()).optional(),
+      allowedEmails: z.array(z.string()).optional(),
     })
     .default({ socialLogins: defaultSocialLogins }),
   balance: balanceSchema.optional(),

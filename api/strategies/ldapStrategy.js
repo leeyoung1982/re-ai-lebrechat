@@ -123,7 +123,7 @@ const ldapLogin = new LdapStrategy(ldapOptions, async (userinfo, done) => {
     }
 
     const appConfig = await getAppConfig();
-    if (!isEmailDomainAllowed(mail, appConfig?.registration?.allowedDomains)) {
+    if (!isEmailDomainAllowed(mail, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
       logger.error(
         `[LDAP Strategy] Authentication blocked - email domain not allowed [Email: ${mail}]`,
       );

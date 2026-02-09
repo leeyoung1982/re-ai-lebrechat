@@ -83,9 +83,8 @@ const createTokenHash = () => {
 const sendVerificationEmail = async (user) => {
   const [verifyToken, hash] = createTokenHash();
 
-  const verificationLink = `${
-    domains.client
-  }/verify?token=${verifyToken}&email=${encodeURIComponent(user.email)}`;
+  const verificationLink = `${domains.client
+    }/verify?token=${verifyToken}&email=${encodeURIComponent(user.email)}`;
   await sendEmail({
     email: user.email,
     subject: 'Verify your email',
@@ -181,7 +180,7 @@ const registerUser = async (user, additionalData = {}) => {
   let newUserId;
   try {
     const appConfig = await getAppConfig();
-    if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains)) {
+    if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
       const errorMessage =
         'The email address provided cannot be used. Please use a different email address.';
       logger.error(`[registerUser] [Registration not allowed] [Email: ${user.email}]`);
@@ -252,7 +251,7 @@ const registerUser = async (user, additionalData = {}) => {
 const requestPasswordReset = async (req) => {
   const { email } = req.body;
   const appConfig = await getAppConfig();
-  if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains)) {
+  if (!isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
     const error = new Error(ErrorTypes.AUTH_FAILED);
     error.code = ErrorTypes.AUTH_FAILED;
     error.message = 'Email domain not allowed';
@@ -496,9 +495,8 @@ const resendVerificationEmail = async (req) => {
 
     const [verifyToken, hash] = createTokenHash();
 
-    const verificationLink = `${
-      domains.client
-    }/verify?token=${verifyToken}&email=${encodeURIComponent(user.email)}`;
+    const verificationLink = `${domains.client
+      }/verify?token=${verifyToken}&email=${encodeURIComponent(user.email)}`;
 
     await sendEmail({
       email: user.email,

@@ -1,0 +1,3 @@
+services:
+  api:
+    image: re-ai-radio/librechat:auth-ui-models-20260204

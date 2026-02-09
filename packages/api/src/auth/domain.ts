@@ -1,8 +1,21 @@
 /**
  * @param email
  * @param allowedDomains
+ * @param allowedEmails - Optional list of specific email addresses that are allowed regardless of domain
  */
-export function isEmailDomainAllowed(email: string, allowedDomains?: string[] | null): boolean {
+export function isEmailDomainAllowed(
+  email: string,
+  allowedDomains?: string[] | null,
+  allowedEmails?: string[] | null,
+): boolean {
+  /** Check if email is in allowedEmails first (case-insensitive) */
+  if (allowedEmails && Array.isArray(allowedEmails) && allowedEmails.length > 0) {
+    const normalizedEmail = email?.toLowerCase();
+    if (allowedEmails.some((allowed) => allowed?.toLowerCase() === normalizedEmail)) {
+      return true;
+    }
+  }
+
   /** If no domain restrictions are configured, allow all */
   if (!allowedDomains || !Array.isArray(allowedDomains) || !allowedDomains.length) {
     return true;
