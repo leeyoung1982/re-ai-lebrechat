@@ -38,9 +38,9 @@ function getCertificateContent(value) {
   // Check if it's an RFC7468 formatted PEM certificate
   const pemRegex = new RegExp(
     '-----BEGIN (CERTIFICATE|PUBLIC KEY)-----\n' + // header
-      '([A-Za-z0-9+/=]{64}\n)+' + // base64 content (64 characters per line)
-      '[A-Za-z0-9+/=]{1,64}\n' + //  base64 content (last line)
-      '-----END (CERTIFICATE|PUBLIC KEY)-----', // footer
+    '([A-Za-z0-9+/=]{64}\n)+' + // base64 content (64 characters per line)
+    '[A-Za-z0-9+/=]{1,64}\n' + //  base64 content (last line)
+    '-----END (CERTIFICATE|PUBLIC KEY)-----', // footer
   );
   if (pemRegex.test(value)) {
     logger.info('[samlStrategy] Detected RFC7468-formatted certificate string.');
@@ -195,7 +195,7 @@ async function setupSaml() {
           const userEmail = getEmail(profile) || '';
           const appConfig = await getAppConfig();
 
-          if (!isEmailDomainAllowed(userEmail, appConfig?.registration?.allowedDomains)) {
+          if (!isEmailDomainAllowed(userEmail, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
             logger.error(
               `[SAML Strategy] Authentication blocked - email domain not allowed [Email: ${userEmail}]`,
             );

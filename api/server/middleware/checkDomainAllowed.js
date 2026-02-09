@@ -20,7 +20,7 @@ const checkDomainAllowed = async (req, res, next) => {
       role: req?.user?.role,
     });
 
-    if (email && !isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains)) {
+    if (email && !isEmailDomainAllowed(email, appConfig?.registration?.allowedDomains, appConfig?.registration?.allowedEmails)) {
       logger.error(`[Social Login] [Social Login not allowed] [Email: ${email}]`);
       res.redirect('/login');
       return;

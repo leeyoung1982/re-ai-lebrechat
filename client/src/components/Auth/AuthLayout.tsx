@@ -83,7 +83,7 @@ function AuthLayout({
         <ThemeSelector />
       </div>
 
-      <main className="flex flex-1 items-center justify-center px-6 py-10">
+      <main className="flex flex-1 items-center justify-center px-6 py-6">
         <div className="w-full max-w-[460px]">
           {/* ✅ 更高级的“边框”实现：压窄 20% 且天然压住溢出内容 */}
           <div
@@ -95,13 +95,13 @@ function AuthLayout({
           >
             {/* ✅ 裁切容器：手机端眼白超出时会被边框压住 */}
             <div className="w-full" style={{ backgroundColor: YELLOW, overflow: 'hidden' }}>
-              {/* ✅ Eye 区 1:1 */}
+              {/* ✅ Eye 区 5:4 */}
               <div
                 className="w-full flex items-center justify-center"
                 style={{
                   backgroundColor: YELLOW,
-                  aspectRatio: '1 / 1',
-                  padding: 12,
+                  aspectRatio: '5 / 4',
+                  padding: 10,
                 }}
               >
                 <div className="flex items-center justify-center gap-4">
@@ -111,11 +111,11 @@ function AuthLayout({
               </div>
 
               {/* ✅ 白色表单区更紧凑 */}
-              <div className="bg-white px-8 pt-7 pb-7">
+              <div className="bg-white px-7 pt-5 pb-5">
                 {children}
 
                 {!hasStartupConfigError && !isFetching && showSocial && (
-                  <div className="mt-4">
+                  <div className="mt-3">
                     <SocialLoginRender startupConfig={startupConfig} />
                   </div>
                 )}
@@ -125,18 +125,17 @@ function AuthLayout({
         </div>
       </main>
 
-      {/* ✅ footer：规则 3（customFooter 优先，否则站点 Footer） */}
-      <div className="pb-6">
-        {startupConfig?.customFooter ? (
+      {/* ✅ footer：永远显示品牌版权行；隐私/条款链接可选 */}
+        <div className="pb-6">
           <div className="mt-2 text-center text-xs text-black/80 tracking-wide">
-            {startupConfig.customFooter}
+            AI Radio by RELOAD © 2026
           </div>
-        ) : (
+
+          {/* 可选：隐私/条款（有 externalUrl 才会显示；没有也不影响版权行） */}
           <div className="mt-2">
             <Footer startupConfig={startupConfig} />
           </div>
-        )}
-      </div>
+        </div>
     </div>
   );
 }
