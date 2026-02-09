@@ -116,6 +116,9 @@ auth.json
 # User uploads
 uploads/
 
+# User data exports (contains sensitive user information)
+exports/
+
 # owner
 release/
 
